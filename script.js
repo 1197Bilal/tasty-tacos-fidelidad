@@ -56,7 +56,28 @@ const BEBIDAS = [
 let cart = [];
 let tempItem = {};
 let currentDeliveryMode = 'delivery'; // 'pickup' | 'delivery'
+let currentDeliveryMode = 'delivery'; // 'pickup' | 'delivery'
 let deliveryFee = 2.00;
+
+// --- FIREBASE CONFIG ---
+const firebaseConfig = {
+    apiKey: "AIzaSyCu1hJhcWUSts2Mx5EEIJaSYHZvohnuXrc",
+    authDomain: "tasty-tacos-villalba-app.firebaseapp.com",
+    projectId: "tasty-tacos-villalba-app",
+    storageBucket: "tasty-tacos-villalba-app.firebasestorage.app",
+    messagingSenderId: "193111830606",
+    appId: "1:193111830606:web:b529f2d5bd88de5974d31f"
+};
+
+// Start Firebase
+let db;
+try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    console.log("Firebase Conectado 🔥");
+} catch (e) {
+    console.error("Error Firebase:", e);
+}
 
 // --- INICIALIZAR ---
 window.onload = function () {
@@ -99,9 +120,30 @@ function loadUserData() {
     if (savedPhone) document.getElementById('cust-phone').value = savedPhone;
     if (savedAddr) document.getElementById('cust-address').value = savedAddr;
 
-    // Mostrar mensaje de fidelidad si aplica
-    if (ordersCount > 0) {
-        const level = getLoyaltyLevel(ordersCount);
+    // Sincronizar con la Nube (Si tenemos teléfono)
+    if (savedPhone && db) {
+        db.collection("users").doc(savedPhone).get().then((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+                // Actualizar localmente si la nube tiene más datos
+                const cloudCount = data.totalOrders || 0;
+                localStorage.setItem('tasty_orders', cloudCount);
+                renderLoyaltyBadge(cloudCount);
+            } else {
+                renderLoyaltyBadge(parseInt(ordersCount));
+            }
+        }).catch((error) => {
+            console.log("Error sincronizando:", error);
+            renderLoyaltyBadge(parseInt(ordersCount));
+        });
+    } else {
+        renderLoyaltyBadge(parseInt(ordersCount));
+    }
+}
+
+function renderLoyaltyBadge(count) {
+    if (count > 0) {
+        const level = getLoyaltyLevel(count);
         const loyaltyMsg = document.getElementById('loyalty-message');
         if (loyaltyMsg) {
             loyaltyMsg.innerHTML = `
@@ -110,12 +152,11 @@ function loadUserData() {
                     <div class="text-left">
                         <div class="text-[10px] uppercase font-bold tracking-widest text-white/70">Nivel Actual</div>
                         <div class="font-display font-bold text-lg text-white leading-none">${level.name}</div>
-                        <div class="text-xs text-white/90">¡${ordersCount} pedidos completados!</div>
+                        <div class="text-xs text-white/90">¡${count} pedidos completados!</div>
                     </div>
                 </div>
             `;
             loyaltyMsg.classList.remove('hidden');
-            // Quitar estilos viejos si los hubiera
             loyaltyMsg.className = "mb-6";
         }
     }
