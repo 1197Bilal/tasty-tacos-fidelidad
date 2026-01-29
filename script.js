@@ -121,20 +121,31 @@ function loadUserData() {
 
     // Sincronizar con la Nube (Si tenemos teléfono)
     if (savedPhone && db) {
-        db.collection("users").doc(savedPhone).get().then((doc) => {
-            if (doc.exists) {
-                const data = doc.data();
-                // Actualizar localmente si la nube tiene más datos
-                const cloudCount = data.totalOrders || 0;
-                localStorage.setItem('tasty_orders', cloudCount);
-                renderLoyaltyBadge(cloudCount);
-            } else {
+        // En vez de leer solo el usuario, contamos los pedidos REALES en la colección 'orders'
+        // Esto corrige cualquier desfase que hubiera antes
+        const usersRef = db.collection("users").doc(savedPhone);
+        const ordersRef = db.collection("orders").where("userId", "==", savedPhone);
+
+        Promise.all([usersRef.get(), ordersRef.get()])
+            .then(([userDoc, ordersSnap]) => {
+                const realCount = ordersSnap.size; // Contamos los tickets reales
+
+                if (userDoc.exists) {
+                    // Si el contador guardado es distinto al real, lo corregimos
+                    if (userDoc.data().totalOrders !== realCount) {
+                        usersRef.update({ totalOrders: realCount });
+                    }
+                }
+
+                localStorage.setItem('tasty_orders', realCount);
+                renderLoyaltyBadge(realCount);
+            })
+            .catch((error) => {
+                console.log("Error sincronizando:", error);
                 renderLoyaltyBadge(parseInt(ordersCount));
-            }
-        });
+            });
     } else {
         // SI NO HAY DATOS -> ABRIR LOGIN SIEMPRE
-        // Quitamos la comprobación de session para forzar la identificación al entrar
         setTimeout(openLogin, 1000);
         renderLoyaltyBadge(0);
     }
