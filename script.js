@@ -401,6 +401,43 @@ function closeCheckout() {
 }
 
 function openLoyaltyInfo() {
+    const count = parseInt(localStorage.getItem('tasty_orders') || '0');
+    const level = getLoyaltyLevel(count);
+    let nextGoal = "";
+    let remaining = 0;
+
+    // Calcular siguiente meta
+    if (count < 11) {
+        remaining = 11 - count;
+        nextGoal = "para Nivel Plata 🥈";
+    } else if (count < 21) {
+        remaining = 21 - count;
+        nextGoal = "para Nivel Oro 🥇";
+    } else if (count < 41) {
+        remaining = 41 - count;
+        nextGoal = "para Leyenda Platino 💎";
+    } else {
+        nextGoal = "¡Ya eres Leyenda!";
+    }
+
+    const statsContainer = document.getElementById('user-loyalty-stats');
+
+    // Contenido dinámico
+    let html = `
+        <div class="font-display font-bold text-xl text-white mb-1">¡Hola${localStorage.getItem('tasty_name') ? ', ' + localStorage.getItem('tasty_name') : ''}!</div>
+        <div class="text-3xl mb-2">${level.icon}</div>
+        <div class="font-bold text-lg ${level.color.replace('bg-gradient-to-r', 'text-transparent bg-clip-text bg-gradient-to-r')}">${level.name}</div>
+        <div class="text-white font-bold text-2xl mt-2">${count} <span class="text-sm font-normal text-gray-400">pedidos</span></div>
+    `;
+
+    if (remaining > 0) {
+        html += `<div class="text-xs text-secondary mt-2 font-bold animate-pulse">Te faltan ${remaining} pedidos ${nextGoal}</div>`;
+    } else {
+        html += `<div class="text-xs text-cyan-400 mt-2 font-bold">¡Has alcanzado la cima! 🚀</div>`;
+    }
+
+    statsContainer.innerHTML = html;
+
     document.getElementById('modal-loyalty-info').classList.remove('hidden');
     document.getElementById('modal-loyalty-info').classList.add('flex');
 }
