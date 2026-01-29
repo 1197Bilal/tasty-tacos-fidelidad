@@ -133,7 +133,6 @@ function loadUserData() {
             }
         });
     } else {
-    } else {
         // SI NO HAY DATOS -> ABRIR LOGIN SIEMPRE
         // Quitamos la comprobación de session para forzar la identificación al entrar
         setTimeout(openLogin, 1000);
