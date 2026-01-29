@@ -133,10 +133,10 @@ function loadUserData() {
             }
         });
     } else {
-        // SI NO HAY DATOS -> ABRIR LOGIN (Solo si no se ha cerrado antes en esta sesión)
-        if (!sessionStorage.getItem('loginSkipped')) {
-            setTimeout(openLogin, 1000);
-        }
+    } else {
+        // SI NO HAY DATOS -> ABRIR LOGIN SIEMPRE
+        // Quitamos la comprobación de session para forzar la identificación al entrar
+        setTimeout(openLogin, 1000);
         renderLoyaltyBadge(0);
     }
 }
