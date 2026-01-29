@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tasty Tacos | App Oficial</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;700&family=Geist:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Geist', 'sans-serif'],
+                        display: ['Oswald', 'sans-serif'],
+                    },
+                    colors: {
+                        background: '#1a1818',
+                        card: '#242222',
+                        primary: '#a61e1e',
+                        secondary: '#d4af37',
+                        accent: '#ff5722',
+                        muted: '#333333',
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #1a1818;
+            color: white;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Radio Buttons Personalizados */
+        .sauce-radio:checked+div,
+        .drink-radio:checked+div {
+            background-color: #a61e1e;
+            color: white;
+            border-color: #a61e1e;
+            box-shadow: 0 0 10px rgba(166, 30, 30, 0.4);
+        }
+
+        .extra-checkbox:checked+div {
+            background-color: #d4af37;
+            color: black;
+            border-color: #d4af37;
+            font-weight: bold;
+        }
+
+        /* Estilo especial para bebidas importadas */
+        .import-tag {
+            font-size: 9px;
+            padding: 2px 4px;
+            border-radius: 4px;
+            background: #333;
+            color: #aaa;
+            margin-left: 4px;
+        }
+
+        /* FIX GOOGLE MAPS DROPDOWN (Z-INDEX) */
+        .pac-container {
+            z-index: 9999 !important;
+            background-color: #242222 !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 8px !important;
+            margin-top: 5px !important;
+        }
+
+        .pac-item {
+            border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+            padding: 8px !important;
+            color: #ccc !important;
+        }
+
+        .pac-item:hover {
+            background-color: #333 !important;
+        }
+
+        .pac-item-query {
+            color: white !important;
+        }
+    </style>
+</head>
+
+<body class="antialiased pb-32">
+
+    <nav class="fixed top-0 w-full z-40 bg-[#1a1818]/95 backdrop-blur-md border-b border-white/5 shadow-lg">
+        <div class="flex items-center justify-between px-4 py-3">
+            <div class="w-12 h-12 rounded-full border-2 border-primary overflow-hidden p-1 bg-black">
+                <img src="assets/logo.png" class="w-full h-full object-contain">
+            </div>
+            <div class="text-center">
+                <div class="font-display font-bold text-xl tracking-widest text-white leading-none">TASTY <span
+                        class="text-primary">TACOS</span></div>
+                <div class="text-[10px] text-gray-400 tracking-[0.2em] uppercase">Collado Villalba</div>
+            </div>
+            <div class="w-12"></div>
+        </div>
+
+        <div class="flex overflow-x-auto gap-3 px-4 pb-3 pt-2 no-scrollbar">
+            <a href="#tacos"
+                class="px-4 py-2 bg-card rounded-xl text-xs font-bold border border-white/10 hover:border-primary hover:text-primary transition-colors uppercase whitespace-nowrap">🌯
+                Tacos</a>
+            <a href="#burgers"
+                class="px-4 py-2 bg-card rounded-xl text-xs font-bold border border-white/10 hover:border-primary hover:text-primary transition-colors uppercase whitespace-nowrap">🍔
+                Burgers</a>
+            <a href="#bowls"
+                class="px-4 py-2 bg-card rounded-xl text-xs font-bold border border-white/10 hover:border-primary hover:text-primary transition-colors uppercase whitespace-nowrap">🥣
+                Bowls</a>
+            <a href="#extras"
+                class="px-4 py-2 bg-card rounded-xl text-xs font-bold border border-white/10 hover:border-primary hover:text-primary transition-colors uppercase whitespace-nowrap">🥤
+                Extras</a>
+        </div>
+    </nav>
+
+    <main class="mt-40 px-4 space-y-12 max-w-7xl mx-auto pb-32">
+
+        <div class="relative h-56 md:h-96 rounded-3xl overflow-hidden shadow-2xl border border-white/10 group">
+            <img src="assets/hero.jpg"
+                class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700"
+                alt="Tasty Tacos Hero">
+            <div class="absolute inset-0 bg-gradient-to-t from-[#1a1818] via-transparent to-transparent"></div>
+            <div class="absolute bottom-6 left-6 md:bottom-10 md:left-10">
+                <span
+                    class="bg-primary text-white text-[10px] md:text-xs font-bold px-3 py-1 rounded mb-3 inline-block tracking-widest shadow-lg">COLLADO
+                    VILLALBA</span>
+                <h1
+                    class="font-display text-5xl md:text-7xl font-bold text-white leading-none shadow-black drop-shadow-md">
+                    EL
+                    SABOR<br>URBANO</h1>
+            </div>
+        </div>
+
+        <section id="tacos" class="scroll-mt-48">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="h-10 w-2 bg-primary rounded-full shadow-[0_0_15px_#a61e1e]"></div>
+                <h2 class="font-display text-4xl font-bold text-white tracking-tight">FRENCH TACOS</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="tacos-container"></div>
+        </section>
+
+        <section id="burgers" class="scroll-mt-48">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="h-10 w-2 bg-secondary rounded-full shadow-[0_0_15px_#d4af37]"></div>
+                <h2 class="font-display text-4xl font-bold text-white tracking-tight">HAMBURGUESAS</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="burgers-container">
+            </div>
+        </section>
+
+        <section id="bowls" class="scroll-mt-48">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="h-10 w-2 bg-accent rounded-full shadow-[0_0_15px_#ff5722]"></div>
+                <h2 class="font-display text-4xl font-bold text-white tracking-tight">BOWLS</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="bowls-container"></div>
+        </section>
+
+        <section id="extras" class="scroll-mt-48">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="h-10 w-2 bg-gray-500 rounded-full shadow-[0_0_15px_gray]"></div>
+                <h2 class="font-display text-4xl font-bold text-white tracking-tight">EXTRAS & POSTRES</h2>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4" id="extras-container"></div>
+        </section>
+    </main>
+
+    <div id="modal-config"
+        class="fixed inset-0 z-50 hidden flex-col justify-end sm:justify-center bg-black/90 backdrop-blur-sm transition-opacity duration-300">
+        <div
+            class="bg-[#1e1e1e] w-full sm:w-[480px] sm:rounded-2xl rounded-t-3xl p-6 border-t sm:border border-white/10 mx-auto max-h-[90vh] overflow-y-auto shadow-2xl">
+
+            <div class="w-12 h-1.5 bg-gray-700 rounded-full mx-auto mb-6"></div>
+
+            <h3 id="modal-item-title" class="font-display text-3xl font-bold text-white mb-1 uppercase text-center">
+            </h3>
+            <p class="text-center text-gray-500 text-sm mb-6">Personaliza tu pedido</p>
+
+            <div class="space-y-6">
+                <div id="step-format">
+                    <div class="flex items-center justify-between mb-3">
+                        <label class="text-xs font-bold text-primary uppercase tracking-widest">1. Elige Formato</label>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="format" value="Solo" class="peer hidden" checked
+                                onchange="updateTotal()">
+                            <div
+                                class="bg-black border border-white/10 rounded-xl p-4 text-center peer-checked:bg-secondary peer-checked:text-black peer-checked:border-secondary transition-all">
+                                <span class="block font-bold">SOLO</span>
+                                <span class="text-xs opacity-70" id="price-solo-display"></span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="format" value="Menú" class="peer hidden" onchange="updateTotal()">
+                            <div
+                                class="bg-black border border-white/10 rounded-xl p-4 text-center peer-checked:bg-secondary peer-checked:text-black peer-checked:border-secondary transition-all relative overflow-hidden">
+                                <div
+                                    class="absolute top-0 right-0 bg-red-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-bl-lg shadow-sm">
+                                    RECOMENDADO</div>
+                                <span class="block font-bold">MENÚ</span>
+                                <span class="text-xs opacity-70" id="price-menu-display"></span>
+                                <span class="text-[10px] block mt-1 leading-none font-bold">+ Patatas y Bebida</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="step-drink" class="hidden">
+                    <label class="text-xs font-bold text-secondary uppercase tracking-widest mb-3 block">2. Elige tu
+                        Bebida</label>
+                    <div class="grid grid-cols-2 gap-2" id="drinks-list"></div>
+                </div>
+
+                <div id="step-sauce">
+                    <label class="text-xs font-bold text-primary uppercase tracking-widest mb-3 block"
+                        id="label-sauce-step">3. Elige 1 Salsa Gratis <span class="text-red-500">*</span></label>
+                    <div class="grid grid-cols-3 gap-2" id="sauces-list"></div>
+                </div>
+
+                <div id="step-extras">
+                    <label class="text-xs font-bold text-secondary uppercase tracking-widest mb-3 block"
+                        id="label-extra-step">4. Salsas Extra (+0.25€)</label>
+                    <div class="grid grid-cols-3 gap-2" id="extras-list"></div>
+                </div>
+
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block">Nota Especial
+                        (Opcional)</label>
+                    <textarea id="item-note" placeholder="Ej: Sin cebolla, Salsa aparte..." rows="2"
+                        class="w-full bg-black border border-white/10 rounded-xl p-3 text-white text-sm focus:border-primary outline-none resize-none"></textarea>
+                </div>
+            </div>
+
+            <div class="mt-8 pt-4 border-t border-white/10">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-gray-400 text-sm">Total</span>
+                    <span id="modal-total" class="text-2xl font-bold text-white">0.00€</span>
+                </div>
+                <div class="grid grid-cols-4 gap-3">
+                    <button onclick="closeModal()"
+                        class="col-span-1 py-3 rounded-xl border border-white/10 text-gray-400 font-bold">✕</button>
+                    <button onclick="addToCart()"
+                        class="col-span-3 py-3 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/30 uppercase tracking-wide">AÑADIR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-checkout"
+        class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-black/95 backdrop-blur-md">
+        <div
+            class="bg-[#1e1e1e] w-full sm:w-[450px] sm:rounded-2xl rounded-t-3xl p-6 border-t sm:border border-white/10 h-[90vh] sm:h-auto overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="font-display text-2xl font-bold text-white">TU PEDIDO</h2>
+                <button onclick="closeCheckout()" class="text-gray-400 text-2xl">&times;</button>
+            </div>
+
+            <div id="cart-items-container" class="space-y-3 mb-6 max-h-60 overflow-y-auto pr-1"></div>
+
+            <div class="flex justify-between py-3 border-y border-white/10 mb-6">
+                <span class="text-gray-400">Total Productos</span>
+                <span id="checkout-subtotal" class="font-display text-xl font-bold text-white">0.00€</span>
+            </div>
+
+            <!-- Opción Entrega -->
+            <div class="flex bg-black p-1 rounded-xl mb-6 border border-white/10 relative">
+                <div id="delivery-indicator"
+                    class="absolute left-1 top-1 bottom-1 w-[48%] bg-secondary rounded-lg transition-all duration-300">
+                </div>
+
+                <button onclick="setDeliveryMode('pickup')"
+                    class="flex-1 relative z-10 py-3 text-center font-bold text-sm uppercase transition-colors"
+                    id="btn-pickup">
+                    🥡 Recoger
+                </button>
+                <button onclick="setDeliveryMode('delivery')"
+                    class="flex-1 relative z-10 py-3 text-center font-bold text-sm uppercase transition-colors"
+                    id="btn-delivery">
+                    🛵 Domicilio (+2€)
+                </button>
+            </div>
+
+            <div id="delivery-cost-row" class="flex justify-between py-2 mb-2 hidden text-yellow-500">
+                <span>Gastos de Envío</span>
+                <span>+2.00€</span>
+            </div>
+
+            <div class="flex justify-between items-center mb-6">
+                <span class="text-gray-400 text-sm">TOTAL A PAGAR</span>
+                <span id="checkout-total" class="font-display text-3xl font-bold text-secondary">0.00€</span>
+            </div>
+
+            <div class="space-y-4">
+                <input type="text" id="cust-name" placeholder="Tu Nombre" oninput="validateCheckoutForm()"
+                    class="w-full bg-black border border-white/10 rounded-xl p-3 text-white focus:border-secondary outline-none">
+                <input type="tel" id="cust-phone" placeholder="Tu Teléfono (Obligatorio)"
+                    oninput="validateCheckoutForm()"
+                    class="w-full bg-black border border-white/10 rounded-xl p-3 text-white focus:border-secondary outline-none">
+
+                <div id="address-container" class="transition-all duration-300 overflow-hidden">
+                    <input type="text" id="cust-address" placeholder="Dirección Completa (Obligatorio)"
+                        oninput="validateCheckoutForm()"
+                        class="w-full bg-black border border-white/10 rounded-xl p-3 text-white focus:border-secondary outline-none">
+                </div>
+
+                <select id="cust-payment"
+                    class="w-full bg-black border border-white/10 rounded-xl p-3 text-white focus:border-secondary outline-none"
+                    onchange="togglePaymentDetails()">
+                    <option value="Tarjeta" selected>💳 Tarjeta (Datáfono)</option>
+                    <option value="Efectivo">💵 Efectivo</option>
+                    <option value="Bizum">📱 Bizum</option>
+                </select>
+
+                <div id="change-field" class="hidden">
+                    <input type="number" id="cust-change" placeholder="¿Llevar cambio de cuánto? (Ej: 20€)"
+                        class="w-full bg-black border border-white/10 rounded-xl p-3 text-white focus:border-secondary outline-none">
+                </div>
+
+                <div id="loyalty-message" class="hidden mb-4"></div>
+                <div id="bizum-details" class="hidden bg-[#222] border border-primary/40 p-3 rounded-xl text-center">
+                    <p class="text-gray-400 text-xs">Móvil para Bizum:</p>
+                    <p class="text-xl font-black text-white">642 70 86 22</p>
+                    <p class="text-[10px] text-primary font-bold mt-1">⚠️ Envía captura al WhatsApp</p>
+                </div>
+            </div>
+
+            <button id="btn-confirm-order" onclick="sendOrder()" disabled
+                class="w-full mt-6 py-4 bg-gray-600 text-white/50 font-black text-lg rounded-xl uppercase flex items-center justify-center gap-2 transition-all duration-500 cursor-not-allowed opacity-50">
+                <span>Confirmar en WhatsApp</span> 🚀
+            </button>
+        </div>
+    </div>
+
+    <div id="float-btn" class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-30 hidden animate-bounce">
+        <button onclick="openCheckout()"
+            class="w-full bg-secondary text-black p-4 rounded-full shadow-2xl shadow-orange-500/20 border-2 border-white/20 flex items-center justify-between group hover:scale-105 transition-transform relative overflow-hidden">
+            <div class="absolute inset-0 bg-white/20 animate-pulse"></div>
+            <div class="flex items-center gap-3 relative z-10">
+                <div class="bg-black text-secondary w-8 h-8 rounded-full flex items-center justify-center font-bold"
+                    id="cart-count">0</div>
+                <span class="font-display font-bold text-lg tracking-wide">VER PEDIDO</span>
+            </div>
+            <span class="font-bold text-lg" id="float-total">0.00€</span>
+        </button>
+    </div>
+
+    <!-- MODAL UPSELL -->
+    <div id="modal-upsell"
+        class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
+        <div
+            class="bg-[#1a1818] border border-white/10 w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl animate-slide-up relative">
+
+            <div class="p-5 text-center">
+                <div class="inline-block bg-primary/20 p-3 rounded-full mb-3">
+                    <span class="text-3xl">🍟</span>
+                </div>
+                <h3 class="font-display text-2xl font-bold text-white mb-1">¿TE APETECE ALGO MÁS?</h3>
+                <p class="text-gray-400 text-sm mb-6">Completa tu pedido con estos favoritos 🔥</p>
+
+                <div class="space-y-3">
+                    <button onclick="addUpsellItem('Nuggets x6', 3.90)"
+                        class="w-full bg-[#2a2828] hover:bg-[#333] border border-white/5 rounded-xl p-3 flex items-center justify-between group transition-colors">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-lg bg-black overflow-hidden">
+                                <img src="assets/nuggets_balls.jpg" class="w-full h-full object-cover">
+                            </div>
+                            <div class="text-left">
+                                <div class="font-bold text-white">Nuggets x6</div>
+                                <div class="text-xs text-secondary font-bold">3.90€</div>
+                            </div>
+                        </div>
+                        <div
+                            class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                            +</div>
+                    </button>
+
+                    <button onclick="addUpsellItem('Bacon Cheese Fries', 2.50)"
+                        class="w-full bg-[#2a2828] hover:bg-[#333] border border-white/5 rounded-xl p-3 flex items-center justify-between group transition-colors">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-lg bg-black overflow-hidden">
+                                <img src="assets/bacon_cheese_fries.jpg" class="w-full h-full object-cover">
+                            </div>
+                            <div class="text-left">
+                                <div class="font-bold text-white">Bacon Cheese Fries</div>
+                                <div class="text-xs text-secondary font-bold">2.50€</div>
+                            </div>
+                        </div>
+                        <div
+                            class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                            +</div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-white/5 bg-black/20">
+                <button onclick="closeUpsell()" class="w-full text-gray-500 hover:text-white text-sm font-medium py-2">
+                    No, gracias, ir al carrito
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GOOGLE MAPS API (Places Autocomplete) -->
+    <!-- REEMPLAZA 'iZpy-PjbpqYjHei1iQg7yqWOoFw=' CON TU CLAVE REAL DE GOOGLE CLOUD -->
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCVcLXyl9vI77jasz_HEGTsevYHw_uHifA&libraries=places&callback=initAutocomplete"
+        async defer></script>
+    <script src="script.js?v=final_v3"></script>
+</body>
+
+
+</html>

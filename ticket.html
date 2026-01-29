@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Pedido</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            /* Más legible que Courier en impresoras térmicas */
+            background-color: #fff;
+            color: #000;
+            width: 280px;
+            /* Ajuste fino de ancho */
+            margin: 0 auto;
+            padding: 10px;
+            font-size: 13px;
+            /* Un pelín más grande */
+            font-weight: bold;
+            /* Todo en negrita para que la aguja de la impresora marque bien */
+            line-height: 1.2;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .bold {
+            font-weight: 900;
+        }
+
+        .line {
+            border-bottom: 2px solid #000;
+            margin: 10px 0;
+        }
+
+        .item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2px;
+        }
+
+        .total {
+            font-size: 18px;
+            margin-top: 10px;
+            border-top: 2px solid #000;
+            padding-top: 5px;
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        @media print {
+            @page {
+                margin: 0;
+            }
+
+            body {
+                margin: 10px;
+                padding: 0;
+                width: 280px;
+            }
+
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="center bold" style="font-size: 18px;">TASTY TACOS VILLALBA</div>
+    <div class="center">
+        E56700347<br>
+        PLAZA DE LOS BELGAS 7 LOCAL 1<br>
+        28400-COLLADO VILLALBA<br>
+        919481991
+    </div>
+    <div class="line"></div>
+
+    <div>CLIENTE: <span id="t-name"></span></div>
+    <div>TEL: <span id="t-phone"></span></div>
+    <div>DIR: <span id="t-addr"></span></div>
+    <div id="t-note-container" style="display:none; font-weight:bold; margin: 5px 0;">NOTA: <span id="t-note"></span>
+    </div>
+    <div>PAGO: <span id="t-pay"></span></div>
+    <div id="t-change-container" style="display:none;">CAMBIO: <span id="t-change"></span>€</div>
+    <div>FECHA: <span id="t-date"></span></div>
+
+    <div class="line"></div>
+    <div class="bold">PRODUCTOS:</div>
+    <br>
+    <div id="t-items"></div>
+
+    <div class="line"></div>
+    <div class="item bold total">
+        <span>TOTAL:</span>
+        <span id="t-total"></span>
+    </div>
+
+    <div class="footer">
+        *** GRACIAS POR SU VISITA ***<br><br>
+    </div>
+
+    <button onclick="window.print()" class="no-print"
+        style="width: 100%; padding: 15px; background: black; color: white; font-weight: bold; border: none; font-size: 16px; border-radius: 8px; cursor: pointer;">
+        🖨️ IMPRIMIR TICKET
+    </button>
+
+    <script>
+        // Decodificador seguro para UTF-8 y URL-Safe
+        function safeAtob(str) {
+            str = str.replace(/-/g, '+').replace(/_/g, '/');
+            while (str.length % 4) str += '=';
+            const binary = window.atob(str);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+            return new TextDecoder().decode(bytes);
+        }
+
+        function init() {
+            const params = new URLSearchParams(window.location.search);
+            const dataRaw = params.get('data');
+
+            if (dataRaw) {
+                try {
+                    const json = safeAtob(dataRaw);
+                    const order = JSON.parse(json);
+
+                    // DEBUG: Comprobar qué llega
+                    // alert(JSON.stringify(order)); 
+
+                    document.getElementById('t-name').innerText = order.n;
+                    document.getElementById('t-phone').innerText = order.ph;
+                    document.getElementById('t-name').innerText = order.n;
+                    document.getElementById('t-phone').innerText = order.ph;
+
+                    // Lógica Delivery visual
+                    if (order.dm === 'delivery') {
+                        document.getElementById('t-addr').innerHTML = `<strong>🛵 A DOMICILIO</strong><br>${order.a}`;
+                    } else {
+                        document.getElementById('t-addr').innerHTML = `<strong>🥡 RECOGER EN LOCAL</strong><br>Sin dirección`;
+                    }
+
+                    if (order.nt) {
+                        document.getElementById('t-note').innerText = order.nt;
+                        document.getElementById('t-note-container').style.display = 'block';
+                    }
+
+                    document.getElementById('t-pay').innerText = order.p;
+                    if (order.ch) {
+                        document.getElementById('t-change').innerText = order.ch;
+                        document.getElementById('t-change-container').style.display = 'block';
+                    }
+                    document.getElementById('t-date').innerText = new Date().toLocaleString();
+                    document.getElementById('t-total').innerText = order.t + '€';
+
+                    const itemsContainer = document.getElementById('t-items');
+
+                    // Aseguramos que manejamos OBJETOS {t, p, d, n}
+                    order.c.forEach((item, i) => {
+                        const div = document.createElement('div');
+                        div.innerHTML = `
+                            <div class="item">
+                                <span>${i + 1}. ${item.t}</span>
+                                <span>${item.p.toFixed(2)}€</span>
+                            </div>
+                            <div style="font-size: 12px; margin-bottom: 3px;">${item.d}</div>
+                            ${item.n ? `<div style="font-size: 13px; margin-bottom: 5px;">> NOTA: ${item.n}</div>` : ''}
+                        `;
+                        itemsContainer.appendChild(div);
+                    });
+
+                    // Añadir gastos de envío si existen
+                    if (order.shp && order.shp > 0) {
+                        const divShp = document.createElement('div');
+                        divShp.innerHTML = `
+                            <div class="line"></div>
+                            <div class="item">
+                                <span>Gastos de Envío</span>
+                                <span>+${order.shp.toFixed(2)}€</span>
+                            </div>
+                        `;
+                        itemsContainer.appendChild(divShp);
+                    }
+
+                    setTimeout(() => window.print(), 500);
+
+                } catch (e) {
+                    document.body.innerHTML = `
+                        <div class='center'>
+                            <h2>Error al cargar el ticket 😞</h2>
+                            <p style='font-size:11px; color:red;'>${e.message}</p>
+                            <p style='font-size:10px;'>Copia el enlace y pégalo en Chrome o Safari directamente.</p>
+                        </div>`;
+                    console.error("Decode Error:", e);
+                }
+            } else {
+                document.body.innerHTML = "<h2 class='center'>No hay datos de pedido</h2>";
+            }
+        }
+
+        window.onload = init;
+    </script>
+</body>
+
+</html>
