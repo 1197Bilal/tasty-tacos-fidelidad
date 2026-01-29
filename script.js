@@ -400,6 +400,16 @@ function closeCheckout() {
     document.getElementById('modal-checkout').classList.remove('flex');
 }
 
+function openLoyaltyInfo() {
+    document.getElementById('modal-loyalty-info').classList.remove('hidden');
+    document.getElementById('modal-loyalty-info').classList.add('flex');
+}
+
+function closeLoyaltyInfo() {
+    document.getElementById('modal-loyalty-info').classList.add('hidden');
+    document.getElementById('modal-loyalty-info').classList.remove('flex');
+}
+
 function togglePaymentDetails() {
     const val = document.getElementById('cust-payment').value;
     document.getElementById('bizum-details').style.display = val === 'Bizum' ? 'block' : 'none';
