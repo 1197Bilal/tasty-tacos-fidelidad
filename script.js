@@ -178,8 +178,31 @@ function saveUserData() {
     localStorage.setItem('tasty_address', addr);
 
     // Incrementar contador pedidos
-    let count = parseInt(localStorage.getItem('tasty_orders') || '0');
-    localStorage.setItem('tasty_orders', count + 1);
+    let count = parseInt(localStorage.getItem('tasty_orders') || '0') + 1;
+    localStorage.setItem('tasty_orders', count);
+
+    // GUARDAR EN FIREBASE (NUBE) ☁️
+    if (db && phone) {
+        const userData = {
+            name: name,
+            phone: phone,
+            address: addr,
+            totalOrders: count,
+            lastOrder: new Date().toISOString()
+        };
+
+        db.collection("users").doc(phone).set(userData, { merge: true })
+            .then(() => console.log("Usuario guardado en nube ☁️"))
+            .catch((e) => console.error("Error guardando:", e));
+
+        // Registrar el pedido individual también
+        db.collection("orders").add({
+            userId: phone,
+            items: cart,
+            total: document.getElementById('checkout-total').innerText,
+            date: new Date().toISOString()
+        });
+    }
 }
 
 function renderSection(type, items, containerId) {
