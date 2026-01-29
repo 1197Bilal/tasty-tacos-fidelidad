@@ -131,13 +131,60 @@ function loadUserData() {
             } else {
                 renderLoyaltyBadge(parseInt(ordersCount));
             }
-        }).catch((error) => {
-            console.log("Error sincronizando:", error);
-            renderLoyaltyBadge(parseInt(ordersCount));
         });
     } else {
-        renderLoyaltyBadge(parseInt(ordersCount));
+        // SI NO HAY DATOS -> ABRIR LOGIN (Solo si no se ha cerrado antes en esta sesión)
+        if (!sessionStorage.getItem('loginSkipped')) {
+            setTimeout(openLogin, 1000);
+        }
+        renderLoyaltyBadge(0);
     }
+}
+
+function openLogin() {
+    document.getElementById('modal-login').classList.remove('hidden');
+    document.getElementById('modal-login').classList.add('flex');
+}
+
+function closeLogin() {
+    document.getElementById('modal-login').classList.add('hidden');
+    document.getElementById('modal-login').classList.remove('flex');
+    sessionStorage.setItem('loginSkipped', 'true');
+}
+
+function checkLogin() {
+    const phoneInput = document.getElementById('login-phone').value.trim();
+    if (phoneInput.length < 9) {
+        alert("Por favor, pon un teléfono válido.");
+        return;
+    }
+
+    if (!db) return closeLogin(); // Si no hay BD, entramos directos
+
+    const btn = document.querySelector('#modal-login button');
+    const originalText = btn.innerText;
+    btn.innerText = "BUSCANDO...";
+
+    db.collection("users").doc(phoneInput).get().then((doc) => {
+        if (doc.exists) {
+            const data = doc.data();
+            localStorage.setItem('tasty_name', data.name);
+            localStorage.setItem('tasty_phone', data.phone);
+            localStorage.setItem('tasty_address', data.address);
+            localStorage.setItem('tasty_orders', data.totalOrders);
+
+            alert(`¡Qué alegría verte de nuevo, ${data.name}! 🌮`);
+            location.reload(); // Recargar para aplicar cambios
+        } else {
+            // Usuario nuevo, guardamos el teléfono para el futuro
+            localStorage.setItem('tasty_phone', phoneInput);
+            alert("No te encontramos, ¡pero bienvenido a la familia! Haz tu primer pedido.");
+            closeLogin();
+        }
+    }).catch(() => {
+        alert("Error de conexión. Entrando modo invitado.");
+        closeLogin();
+    });
 }
 
 function renderLoyaltyBadge(count) {
