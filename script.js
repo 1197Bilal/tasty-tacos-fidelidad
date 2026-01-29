@@ -505,6 +505,44 @@ function openLoyaltyInfo() {
     document.getElementById('modal-loyalty-info').classList.add('flex');
 }
 
+function manualCheckLoyalty() {
+    const phoneInput = document.getElementById('check-phone').value.trim();
+    if (phoneInput.length < 9) {
+        alert("Introduce un teléfono válido.");
+        return;
+    }
+
+    if (!db) {
+        alert("Error de conexión. Inténtalo luego.");
+        return;
+    }
+
+    const btn = document.querySelector('#modal-loyalty-info button.bg-secondary');
+    btn.innerText = "...";
+
+    db.collection("users").doc(phoneInput).get().then((doc) => {
+        if (doc.exists) {
+            const data = doc.data();
+            // Guardamos localmente para que la próxima vez sea auto
+            localStorage.setItem('tasty_name', data.name);
+            localStorage.setItem('tasty_phone', data.phone);
+            localStorage.setItem('tasty_address', data.address);
+            localStorage.setItem('tasty_orders', data.totalOrders);
+
+            // Recargamos el modal con los datos nuevos
+            openLoyaltyInfo();
+            alert(`¡Te encontramos ${data.name}! Nivel actualizado.`);
+        } else {
+            alert("No encontramos pedidos con este teléfono. ¡Haz tu primer pedido hoy!");
+        }
+        btn.innerText = "BUSCAR";
+    }).catch((e) => {
+        console.error(e);
+        alert("Error al buscar.");
+        btn.innerText = "BUSCAR";
+    });
+}
+
 function closeLoyaltyInfo() {
     document.getElementById('modal-loyalty-info').classList.add('hidden');
     document.getElementById('modal-loyalty-info').classList.remove('flex');
