@@ -56,7 +56,6 @@ const BEBIDAS = [
 let cart = [];
 let tempItem = {};
 let currentDeliveryMode = 'delivery'; // 'pickup' | 'delivery'
-let currentDeliveryMode = 'delivery'; // 'pickup' | 'delivery'
 let deliveryFee = 2.00;
 
 // --- FIREBASE CONFIG ---
