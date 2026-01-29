@@ -546,10 +546,21 @@ function openLoyaltyInfo() {
         html += `<div class="text-xs text-cyan-400 mt-2 font-bold">¡Has alcanzado la cima! 🚀</div>`;
     }
 
+    // Botón Cerrar Sesión
+    html += `<button onclick="logout()" class="mt-3 text-[10px] text-red-400 underline hover:text-red-300">Cerrar Sesión / Cambiar Usuario</button>`;
+
     statsContainer.innerHTML = html;
 
     document.getElementById('modal-loyalty-info').classList.remove('hidden');
     document.getElementById('modal-loyalty-info').classList.add('flex');
+}
+
+function logout() {
+    if (confirm("¿Seguro que quieres cerrar sesión? Se borrarán tus datos de este dispositivo.")) {
+        localStorage.clear();
+        sessionStorage.clear();
+        location.reload();
+    }
 }
 
 function manualCheckLoyalty() {
